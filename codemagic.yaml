@@ -1,0 +1,17 @@
+workflows:
+  android-workflow:
+    name: Android Workflow
+    environment:
+      flutter: stable
+    scripts:
+      - name: Fix missing folders
+        script: |
+          flutter create . --platforms=android,ios
+      - name: Get deps
+        script: |
+          flutter pub get
+      - name: Build APK
+        script: |
+          flutter build apk --debug
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
