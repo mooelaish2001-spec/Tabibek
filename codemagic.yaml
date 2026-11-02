@@ -1,17 +1,37 @@
 workflows:
-  android-workflow:
-    name: Android Workflow
+  android-apk:
+    name: Android APK
+    instance_type: mac_mini_m1
+    max_build_duration: 30
     environment:
       flutter: stable
     scripts:
-      - name: Fix missing folders
+      - name: Check project files
         script: |
-          flutter create . --platforms=android,ios
-      - name: Get deps
+          test -f pubspec.yaml || { echo "pubspec.yaml not found in the repo root"; exit 1; }
+          test -f lib/main.dart || { echo "lib/main.dart not found"; exit 1; }
+
+      - name: Generate the missing android/ folder
         script: |
-          flutter pub get
+          cp lib/main.dart /tmp/main.dart.bak
+          flutter create --platforms=android --org com.tabibak --project-name tabibak_center .
+          cp /tmp/main.dart.bak lib/main.dart
+          rm -f test/widget_test.dart
+
+      - name: Allow internet in release builds (Google Fonts needs it)
+        script: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          grep -q "android.permission.INTERNET" "$MANIFEST" || \
+            perl -0pi -e 's/(<manifest[^>]*>)/$1\n    <uses-permission android:name="android.permission.INTERNET"\/>/' "$MANIFEST"
+
+      - name: Get packages
+        script: flutter pub get
+
+      - name: Analyze (only real errors stop the build)
+        script: flutter analyze --no-fatal-infos --no-fatal-warnings
+
       - name: Build APK
-        script: |
-          flutter build apk --debug
+        script: flutter build apk --release --no-tree-shake-icons --build-number=$BUILD_NUMBER
+
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
+      - build/**/outputs/**/*.apk
