@@ -20,6 +20,7 @@ dependencies:
   cupertino_icons: ^1.0.6
 
   shared_preferences: ^2.2.2
+  google_fonts: ^6.2.1     # خط Cairo (يُحمَّل من الإنترنت أول تشغيل)
 
 dev_dependencies:
 
