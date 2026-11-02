@@ -14,7 +14,7 @@ workflows:
       - name: Generate the missing android/ folder
         script: |
           cp lib/main.dart /tmp/main.dart.bak
-          flutter create --platforms=android --org com.tabibak --project-name tabibak_center .
+          flutter create --platforms=android --org com.tabibak --project-name tabibak_doctor .
           cp /tmp/main.dart.bak lib/main.dart
           rm -f test/widget_test.dart
 
